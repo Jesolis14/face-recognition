@@ -11,7 +11,7 @@ app = Flask(__name__)
 
 # Globals for resources
 embedder = None
- detector = None
+detector = None
 base_datos = {}
 
 # Pre-carga de recursos (modelo, detector y embeddings)
@@ -32,7 +32,7 @@ def preload_resources():
         base_datos = pickle.load(f)
     print(f"✅ Embeddings cargadas para {len(base_datos)} identidades")
 
-# Ejecutar pre-carga
+# Ejecutar pre-carga al iniciar la app
 preload_resources()
 
 @app.route("/")
