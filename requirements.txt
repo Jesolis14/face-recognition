@@ -2,20 +2,17 @@
 Flask==3.1.0
 gunicorn==20.1.0
 
-# NumPy y SciPy para procesamiento numérico
-numpy==1.23.5
-scipy==1.15.2
+# NumPy y SciPy compatibles con TensorFlow
+numpy>=1.20,<2.0
+scipy>=1.8,<2.0
 
-# Manipulación de imágenes
+# Deep learning / embeddings
+tensorflow==2.18.0
+keras-facenet==0.3.2
+
+# Visión e interactividad web
 pillow==11.2.1
 opencv-python-headless==4.11.0.86
-
-# Face embeddings
-keras-facenet==0.3.2
-tensorflow==2.18.0
-
-# ONNX Runtime (si tu app carga modelos ONNX)
 onnxruntime==1.15.1
-
-# Peticiones HTTP
 requests==2.32.3
+
