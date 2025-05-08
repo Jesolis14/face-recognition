@@ -3,7 +3,7 @@ Flask==3.1.0
 gunicorn==20.1.0
 
 # NumPy y SciPy para procesamiento numérico
-numpy==2.1.3
+numpy==1.23.5
 scipy==1.15.2
 
 # Manipulación de imágenes
