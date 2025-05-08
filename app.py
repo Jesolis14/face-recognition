@@ -60,10 +60,17 @@ def index():
 
 @app.route("/status")
 def status():
-    return jsonify({
+    global models_loaded, embedder, detector, base_datos
+    
+    # Get loading progress
+    progress = {
         "models_loaded": models_loaded,
-        "identities": len(base_datos) if models_loaded else 0
-    })
+        "identities": len(base_datos) if models_loaded and base_datos else 0,
+        "detector_loaded": detector is not None,
+        "embedder_loaded": embedder is not None
+    }
+    
+    return jsonify(progress)
 
 @app.route("/reconocer", methods=["POST"])
 def reconocer():
@@ -132,4 +139,3 @@ if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     logger.info(f"Arrancando servidor en 0.0.0.0:{port}")
     app.run(host="0.0.0.0", port=port)
-
