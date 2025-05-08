@@ -1,7 +1,7 @@
 argcomplete==3.4.0
 asn1crypto==1.5.1
 autocommand==2.2.2
-bcc==0.30.0
+bcc==0.1.10
 blinker==1.8.2
 Brlapi==0.8.5
 Brotli==1.1.0
