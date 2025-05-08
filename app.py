@@ -7,41 +7,74 @@ import pickle
 import numpy as np
 from PIL import Image
 import cv2
-from keras_facenet import FaceNet
-from numpy.linalg import norm
-from mtcnn.mtcnn import MTCNN
+from threading import Thread
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
-# Pre-carga de recursos (modelo, detector y embeddings)
-def preload_resources():
-    global embedder, detector, base_datos
+# Global variables to store models
+embedder = None
+detector = None
+base_datos = None
+models_loaded = False
+loading_thread = None
 
-    print("⏳ Cargando FaceNet…")
-    t0 = time.time()
-    embedder = FaceNet()
-    print(f"✅ FaceNet cargado en {time.time() - t0:.2f}s")
+def load_resources():
+    """Load ML models in a separate thread"""
+    global embedder, detector, base_datos, models_loaded
+    
+    try:
+        logger.info("⏳ Cargando FaceNet…")
+        t0 = time.time()
+        from keras_facenet import FaceNet
+        embedder = FaceNet()
+        logger.info(f"✅ FaceNet cargado en {time.time() - t0:.2f}s")
+        
+        logger.info("⏳ Cargando detector MTCNN…")
+        from mtcnn.mtcnn import MTCNN
+        detector = MTCNN()
+        logger.info("✅ Detector MTCNN cargado")
+        
+        logger.info("⏳ Cargando embeddings…")
+        with open("embeddings.pkl", "rb") as f:
+            base_datos = pickle.load(f)
+        logger.info(f"✅ Embeddings cargadas para {len(base_datos)} identidades")
+        
+        models_loaded = True
+    except Exception as e:
+        logger.error(f"Error cargando modelos: {e}")
+        models_loaded = False
 
-    print("⏳ Cargando detector MTCNN…")
-    detector = MTCNN()
-    print("✅ Detector MTCNN cargado")
-
-    print("⏳ Cargando embeddings…")
-    with open("embeddings.pkl", "rb") as f:
-        base_datos = pickle.load(f)
-    print(f"✅ Embeddings cargadas para {len(base_datos)} identidades")
-
-# Llamada de pre-carga al iniciar
-preload_resources()
+# Start loading models in background thread
+loading_thread = Thread(target=load_resources)
+loading_thread.daemon = True
+loading_thread.start()
 
 @app.route("/")
 def index():
     return render_template("index.html")
 
+@app.route("/status")
+def status():
+    return jsonify({
+        "models_loaded": models_loaded,
+        "identities": len(base_datos) if models_loaded else 0
+    })
+
 @app.route("/reconocer", methods=["POST"])
 def reconocer():
+    global models_loaded, embedder, detector, base_datos
+    
+    # Check if models are loaded
+    if not models_loaded:
+        return jsonify(success=False, error="Modelos aún cargando, intente más tarde"), 503
+    
     try:
-        print("🔔 /reconocer invocado")
+        logger.info("🔔 /reconocer invocado")
         t_start = time.time()
 
         # Obtener imagen base64 de JSON
@@ -54,11 +87,11 @@ def reconocer():
         # Convertir a arreglo numpy
         img = Image.open(io.BytesIO(img_bytes))
         arr = np.array(img)
-        print(f"🔍 Imagen recibida: shape={arr.shape}, dtype={arr.dtype}")
+        logger.info(f"🔍 Imagen recibida: shape={arr.shape}, dtype={arr.dtype}")
 
         # Detección con MTCNN
         detecciones = detector.detect_faces(arr)
-        print(f"🔔 MTCNN detectó {len(detecciones)} rostros")
+        logger.info(f"🔔 MTCNN detectó {len(detecciones)} rostros")
 
         resultados = []
         for cara in detecciones:
@@ -71,15 +104,16 @@ def reconocer():
                 "bbox": [int(x), int(y), int(w), int(h)]
             })
 
-        print(f"🔔 Procesado en {time.time() - t_start:.2f}s")
+        logger.info(f"🔔 Procesado en {time.time() - t_start:.2f}s")
         return jsonify(success=True, resultados=resultados)
 
     except Exception as e:
-        print("❌ Error en /reconocer:", e)
+        logger.error(f"❌ Error en /reconocer: {e}")
         return jsonify(success=False, error=str(e)), 500
 
-
 def reconocer_persona(img_array, umbral=0.8):
+    from numpy.linalg import norm
+    
     # Ajustar tamaño para FaceNet
     face_resized = cv2.resize(img_array, (160, 160))
     embedding = embedder.embeddings([face_resized])[0]
@@ -96,6 +130,6 @@ def reconocer_persona(img_array, umbral=0.8):
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    print(f"Arrancando servidor en 0.0.0.0:{port}")
+    logger.info(f"Arrancando servidor en 0.0.0.0:{port}")
     app.run(host="0.0.0.0", port=port)
 
