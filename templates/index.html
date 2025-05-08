@@ -600,64 +600,75 @@
 
         // Add this new function to check model status
         async function checkModelsStatus() {
-            try {
-                const response = await fetch('/status');
-                const data = await response.json();
-                
-                if (data.models_loaded) {
-                    // Models are loaded, start processing
-                    status.innerHTML = `
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
-                            <circle cx="12" cy="12" r="10"/>
-                            <circle cx="12" cy="12" r="3"/>
-                        </svg>
-                        Modelos cargados (${data.identities} identidades)
-                    `;
-                    status.style.backgroundColor = 'var(--success)';
-                    
-                    // Start the processing interval
-                    if (processingInterval) {
-                        clearInterval(processingInterval);
-                    }
-                    processingInterval = setInterval(processFrame, 500);
-                    
-                    // Clear any previous message
-                    if (peopleList.querySelector('.waiting-detection')) {
-                        peopleList.innerHTML = '<div class="waiting-detection">Esperando detección...</div>';
-                    }
-                } else {
-                    // Models still loading, show status and check again in 3 seconds
-                    status.innerHTML = `
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
-                            <circle cx="12" cy="12" r="10"/>
-                            <path d="M12 6v6l4 2"/>
-                        </svg>
-                        Cargando modelos...
-                    `;
-                    status.style.backgroundColor = 'var(--accent)';
-                    
-                    // Show loading message in results area
-                    peopleList.innerHTML = '<div class="waiting-detection">Cargando modelos de reconocimiento facial. Esto puede tomar hasta 1-2 minutos...</div>';
-                    
-                    // Check again in 3 seconds
-                    setTimeout(checkModelsStatus, 3000);
-                }
-            } catch (error) {
-                console.error('Error checking model status:', error);
-                status.innerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
-                        <circle cx="12" cy="12" r="10"/>
-                        <line x1="15" y1="9" x2="9" y2="15"/>
-                        <line x1="9" y1="9" x2="15" y2="15"/>
-                    </svg>
-                    Error de conexión
-                `;
-                status.style.backgroundColor = 'var(--danger)';
-                
-                // Try again in 5 seconds
-                setTimeout(checkModelsStatus, 5000);
+    try {
+        const response = await fetch('/status');
+        const data = await response.json();
+        
+        console.log("Status check response:", data);
+        
+        if (data.models_loaded) {
+            // Models are loaded, start processing
+            status.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+                    <circle cx="12" cy="12" r="10"/>
+                    <circle cx="12" cy="12" r="3"/>
+                </svg>
+                Modelos cargados (${data.identities} identidades)
+            `;
+            status.style.backgroundColor = 'var(--success)';
+            
+            // Start the processing interval
+            if (processingInterval) {
+                clearInterval(processingInterval);
             }
+            processingInterval = setInterval(processFrame, 500);
+            
+            // Clear any previous message
+            if (peopleList.querySelector('.waiting-detection')) {
+                peopleList.innerHTML = '<div class="waiting-detection">Esperando detección...</div>';
+            }
+        } else {
+            // Models still loading, show status and check again in 3 seconds
+            status.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 6v6l4 2"/>
+                </svg>
+                Cargando modelos...
+            `;
+            status.style.backgroundColor = 'var(--accent)';
+            
+            // Show loading message with details
+            peopleList.innerHTML = `
+                <div class="waiting-detection">
+                    <p>Cargando modelos de reconocimiento facial. Esto puede tomar hasta 1-2 minutos...</p>
+                    <p style="margin-top: 10px; font-size: 0.9em;">
+                        Estado: 
+                        ${data.embedder_loaded ? '✅' : '⏳'} FaceNet 
+                        ${data.detector_loaded ? '✅' : '⏳'} Detector 
+                        ${data.identities > 0 ? '✅' : '⏳'} Embeddings
+                    </p>
+                </div>`;
+            
+            // Check again in 3 seconds
+            setTimeout(checkModelsStatus, 3000);
         }
+    } catch (error) {
+        console.error('Error checking model status:', error);
+        status.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="15" y1="9" x2="9" y2="15"/>
+                <line x1="9" y1="9" x2="15" y2="15"/>
+            </svg>
+            Error de conexión
+        `;
+        status.style.backgroundColor = 'var(--danger)';
+        
+        // Try again in 5 seconds
+        setTimeout(checkModelsStatus, 5000);
+    }
+}
         
         // Procesar un frame del video
         async function processFrame() {

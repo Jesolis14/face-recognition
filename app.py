@@ -62,6 +62,18 @@ def index():
 def status():
     global models_loaded, embedder, detector, base_datos
     
+    # Check if models are actually loaded regardless of the flag
+    actual_models_loaded = (
+        embedder is not None and 
+        detector is not None and 
+        base_datos is not None
+    )
+    
+    # If models are loaded but flag isn't set, fix it
+    if actual_models_loaded and not models_loaded:
+        models_loaded = True
+        logger.info("Models detected as loaded, updating models_loaded flag")
+    
     # Get loading progress
     progress = {
         "models_loaded": models_loaded,
@@ -70,6 +82,7 @@ def status():
         "embedder_loaded": embedder is not None
     }
     
+    logger.info(f"Status check: {progress}")
     return jsonify(progress)
 
 @app.route("/reconocer", methods=["POST"])
@@ -139,3 +152,4 @@ if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     logger.info(f"Arrancando servidor en 0.0.0.0:{port}")
     app.run(host="0.0.0.0", port=port)
+
