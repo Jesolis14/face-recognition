@@ -12,9 +12,10 @@ opencv-python-headless==4.11.0.86
 
 # Face embeddings
 keras-facenet==0.3.2
+tensorflow==2.18.0
 
-# ONNX Runtime para cargar tu modelo convertido
+# ONNX Runtime (si tu app carga modelos ONNX)
 onnxruntime==1.15.1
 
-# Peticiones HTTP (descargar modelo, etc.)
+# Peticiones HTTP
 requests==2.32.3
