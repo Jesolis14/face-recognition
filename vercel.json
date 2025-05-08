@@ -9,6 +9,9 @@
     { "src": "/(.*)",          "dest": "/public/index.html" }
   ],
   "build": {
-    "installCommand": "echo \"Skipping pip install\""
+    "env": {
+      "PIP_CACHE_DIR": ".cache/pip"
+    },
+    "installCommand": "pip install --disable-pip-version-check --upgrade --target api/_vendored -r requirements.txt"
   }
 }
