@@ -1,5 +1,14 @@
+# No subir tu data entera ni el virtualenv
 data/
 venv/
 __pycache__/
-.DS_Store
 *.pyc
+
+# Caches y metadatos de macOS
+.DS_Store
+
+# Opcional: si generas logs u otros artefactos
+logs/
+*.log
+
+.env
