@@ -13,6 +13,6 @@ keras-facenet==0.3.2
 # Visión e interactividad web
 pillow==11.2.1
 opencv-python-headless==4.11.0.86
-onnxruntime==1.15.1
+onnxruntime>=1.17.0
 requests==2.32.3
 
