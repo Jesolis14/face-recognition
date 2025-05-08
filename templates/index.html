@@ -686,10 +686,10 @@
         async function checkModelsStatus() {
             try {
                 const response = await fetch('/status');
-                const data = await response.json();
-                
+                const data     = await response.json();
+
                 console.log("Status check response:", data);
-                
+
                 if (data.models_loaded) {
                     // Models are loaded, start processing
                     status.innerHTML = `
@@ -700,14 +700,10 @@
                         Modelos cargados (${data.identities} identidades)
                     `;
                     status.style.backgroundColor = 'var(--success)';
-                    
-                    // Start the processing interval
-                    if (processingInterval) {
-                        clearInterval(processingInterval);
-                    }
+
+                    if (processingInterval) clearInterval(processingInterval);
                     processingInterval = setInterval(processFrame, 500);
-                    
-                    // Clear any previous message
+
                     if (peopleList.querySelector('.waiting-detection')) {
                         peopleList.innerHTML = '<div class="waiting-detection">Esperando detección...</div>';
                     }
@@ -721,24 +717,19 @@
                         Cargando modelos...
                     `;
                     status.style.backgroundColor = 'var(--accent)';
-                    
-                    // Show loading message with details
+
                     peopleList.innerHTML = `
                         <div class="waiting-detection">
                             <p>Cargando modelos de reconocimiento facial. Esto puede tomar hasta 1-2 minutos...</p>
                             <p style="margin-top: 10px; font-size: 0.9em;">
                                 Estado: 
-                                ${data.embedder_loaded ? '✅' : '⏳'} FaceNet 
-                                ${data.detector_loaded ? '✅' : '⏳'} Detector 
-                                ${data.identities > 0 ? '✅' : '⏳'} Embeddings
+                                ${data.embedder_loaded  ? '✅' : '⏳'} FaceNet 
+                                ${data.detector_loaded  ? '✅' : '⏳'} Detector 
+                                ${data.identities > 0   ? '✅' : '⏳'} Embeddings
                             </p>
                         </div>`;
-                    
-                    // Check again in 3 seconds
+
                     setTimeout(checkModelsStatus, 3000);
-                }
-            } catch (error) {
-                console.error('Error checking model status:', error  3000);
                 }
             } catch (error) {
                 console.error('Error checking model status:', error);
@@ -751,8 +742,6 @@
                     Error de conexión
                 `;
                 status.style.backgroundColor = 'var(--danger)';
-                
-                // Try again in 5 seconds
                 setTimeout(checkModelsStatus, 5000);
             }
         }
