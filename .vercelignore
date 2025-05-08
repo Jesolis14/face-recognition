@@ -13,3 +13,4 @@ logs/
 
 .env
 test.png
+api/__pycache__

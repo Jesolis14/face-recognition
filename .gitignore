@@ -4,3 +4,4 @@ venv/
 .vercel
 .env
 test.png
+api/__pycache__
