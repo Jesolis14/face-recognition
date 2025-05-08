@@ -15,9 +15,9 @@
             --dark: #1e293b;
             --light: #f8fafc;
             --gray: #94a3b8;
-            --face-box: #FF3366;
+            --face-box: #1E293B; /* Changed to black for all faces */
             --face-label: #1E293B;
-            --face-label-unknown: #FF3366;
+            --face-label-unknown: #1E293B; /* Changed to match known faces */
         }
         
         * {
@@ -198,6 +198,7 @@
             display: flex;
             flex-direction: column;
             gap: 0.75rem;
+            min-height: 100px; /* Added to maintain consistent height */
         }
         
         .person-card {
@@ -247,6 +248,15 @@
         }
         
         .no-results {
+            text-align: center;
+            padding: 2rem;
+            color: var(--dark);
+            font-weight: 600;
+            font-size: 1.1rem;
+            font-style: normal;
+        }
+        
+        .waiting-detection {
             text-align: center;
             padding: 2rem;
             color: var(--gray);
@@ -321,7 +331,7 @@
                     <h2 class="results-title">Personas Detectadas</h2>
                 </div>
                 <div id="peopleList" class="people-list">
-                    <div class="no-results">Esperando detección...</div>
+                    <div class="waiting-detection">Esperando detección...</div>
                 </div>
             </div>
         </div>
@@ -725,16 +735,14 @@
             
             // Renderizar cada cara con animación suave
             trackedFaces.forEach(face => {
-                const isUnknown = face.nombre === "Desconocido";
-                
                 // Interpolar suavemente hacia la posición objetivo
                 face.currentX = lerp(face.currentX, face.targetX, 0.3);
                 face.currentY = lerp(face.currentY, face.targetY, 0.3);
                 face.currentW = lerp(face.currentW, face.targetW, 0.3);
                 face.currentH = lerp(face.currentH, face.targetH, 0.3);
                 
-                // Dibujar el rectángulo con estilo mejorado
-                faceCtx.strokeStyle = isUnknown ? 'var(--danger)' : 'var(--face-box)';
+                // Dibujar el rectángulo con estilo mejorado - mismo color para todas las caras
+                faceCtx.strokeStyle = 'var(--face-box)';
                 faceCtx.lineWidth = 3;
                 faceCtx.beginPath();
                 faceCtx.roundRect(
@@ -755,8 +763,6 @@
             
             // Crear una etiqueta para cada cara
             trackedFaces.forEach(face => {
-                const isUnknown = face.nombre === "Desconocido";
-                
                 // Crear un elemento para la etiqueta
                 const label = document.createElement('div');
                 label.className = 'face-label';
@@ -767,8 +773,8 @@
                 label.style.left = `${face.currentX}px`;
                 label.style.top = `${face.currentY - 30}px`;
                 
-                // Estilo según si es conocido o desconocido
-                label.style.backgroundColor = isUnknown ? 'var(--face-label-unknown)' : 'var(--face-label)';
+                // Estilo según si es conocido o desconocido - mismo color para todos
+                label.style.backgroundColor = 'var(--face-label)';
                 
                 // Añadir la etiqueta al contenedor
                 faceLabelsContainer.appendChild(label);
@@ -784,16 +790,23 @@
         function displayResults(resultados) {
             peopleList.innerHTML = '';
 
-            // 1) Sin detección
+            // 1) Sin detección - no mostrar nada
             if (resultados.length === 0) {
-                peopleList.innerHTML = '<div class="no-results">Acceso Denegado</div>';
+                peopleList.innerHTML = ''; // Dejamos vacío el contenedor
                 return;
             }
 
-            // 2) Nombre “unknown”
+            // 2) Nombre "unknown"
             const nombre = resultados[0].nombre.toLowerCase();
             if (nombre === 'unknown' || nombre === 'desconocido') {
-                peopleList.innerHTML = '<div class="no-results">Acceso Denegado</div>';
+                // Usar el mismo estilo que el mensaje de bienvenida
+                const denyCard = document.createElement('div');
+                denyCard.className = 'person-card';
+                denyCard.innerHTML = `
+                    <div class="person-info">
+                    <div class="person-name">Acceso Denegado</div>
+                    </div>`;
+                peopleList.appendChild(denyCard);
                 return;
             }
 
@@ -832,7 +845,4 @@
     </script>
 </body>
 </html>
-
-
-
 
