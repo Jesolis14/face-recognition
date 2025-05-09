@@ -41,7 +41,8 @@ def load_resources():
         
         logger.info("⏳ Cargando embeddings…")
         with open("embeddings.pkl", "rb") as f:
-            base_datos = pickle.load(f)
+            data = pickle.load(f)
+            base_datos = {k: [np.array(e) for e in v] for k, v in data.items()}
         logger.info(f"✅ Embeddings cargadas para {len(base_datos)} identidades")
         
         models_loaded = True
