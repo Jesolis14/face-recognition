@@ -1,22 +1,21 @@
-FROM python:3.10-slim
+FROM python:3.10
 
-# Instala dependencias del sistema
 RUN apt-get update && apt-get install -y \
     libgl1-mesa-glx \
     libglib2.0-0 \
+    build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Crear directorio de trabajo
 WORKDIR /app
 
-# Copiar archivos
 COPY . /app
 
-# Instalar dependencias de Python
+RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install --force-reinstall numpy==1.24.3
-# Exponer el puerto (usado por Flask)
-EXPOSE 8000
 
-# Comando de arranque
+# 💡 Reinstalación limpia desde fuente para asegurar numpy._core
+RUN pip install --no-binary=numpy numpy==1.24.3
+
+EXPOSE 8080
+
 CMD ["python", "app.py"]
