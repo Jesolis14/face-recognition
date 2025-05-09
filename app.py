@@ -151,6 +151,6 @@ def reconocer_persona(img_array, umbral=0.8):
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     logger.info(f"Arrancando servidor en 0.0.0.0:{port}")
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=port, debug=False)
 
 
