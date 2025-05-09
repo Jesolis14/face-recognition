@@ -14,7 +14,7 @@ COPY . /app
 
 # Instalar dependencias de Python
 RUN pip install --no-cache-dir -r requirements.txt
-
+RUN pip install --force-reinstall numpy==1.24.3
 # Exponer el puerto (usado por Flask)
 EXPOSE 8000
 
