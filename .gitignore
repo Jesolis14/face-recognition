@@ -9,3 +9,7 @@ generar_embeddings.py
 api/_vendored/clang/
 api/_vendored/cv2/
 api/_vendored/tensorflow/
+
+venv/
+__pycache__/
+*.pyc
