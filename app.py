@@ -117,7 +117,11 @@ def reconocer():
         resultados = []
         for cara in detecciones:
             x, y, w, h = cara["box"]
-            face_img = arr[y:y+h, x:x+w]
+            # Asegurar que los valores estén dentro del tamaño de la imagen
+            x, y = max(0, x), max(0, y)
+            x2 = min(arr.shape[1], x + w)
+            y2 = min(arr.shape[0], y + h)
+            face_img = arr[y:y2, x:x2]
             nombre, distancia = reconocer_persona(face_img)
             resultados.append({
                 "nombre": nombre,
@@ -134,20 +138,36 @@ def reconocer():
 
 def reconocer_persona(img_array, umbral=0.8):
     from numpy.linalg import norm
-    
-    # Ajustar tamaño para FaceNet
-    face_resized = cv2.resize(img_array, (160, 160))
-    embedding = embedder.embeddings([face_resized])[0]
 
-    nombre_identificado = "Desconocido"
-    distancia_minima = float("inf")
-    for nombre, emb_list in base_datos.items():
-        for emb_base in emb_list:
-            d = norm(embedding - emb_base)
-            if d < distancia_minima and d < umbral:
-                distancia_minima = d
-                nombre_identificado = nombre
-    return nombre_identificado, distancia_minima
+    try:
+        # Garantizar que la imagen tiene 3 canales RGB
+        if img_array.ndim == 2:
+            img_array = cv2.cvtColor(img_array, cv2.COLOR_GRAY2RGB)
+        elif img_array.shape[2] == 4:
+            img_array = cv2.cvtColor(img_array, cv2.COLOR_RGBA2RGB)
+        elif img_array.shape[2] != 3:
+            raise ValueError(f"Imagen con forma inesperada: {img_array.shape}")
+
+        # Redimensionar a 160x160
+        face_resized = cv2.resize(img_array, (160, 160))
+
+        # Obtener embedding
+        embedding = embedder.embeddings([face_resized])[0]
+
+        # Buscar identidad
+        nombre_identificado = "Desconocido"
+        distancia_minima = float("inf")
+        for nombre, emb_list in base_datos.items():
+            for emb_base in emb_list:
+                d = norm(embedding - emb_base)
+                if d < distancia_minima and d < umbral:
+                    distancia_minima = d
+                    nombre_identificado = nombre
+        return nombre_identificado, distancia_minima
+
+    except Exception as e:
+        logger.error(f"❌ Error procesando imagen para reconocimiento: {e}")
+        return "Error", float("inf")
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
