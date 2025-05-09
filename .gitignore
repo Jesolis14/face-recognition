@@ -11,5 +11,6 @@ api/_vendored/cv2/
 api/_vendored/tensorflow/
 
 venv/
+venv310/
 __pycache__/
 *.pyc
