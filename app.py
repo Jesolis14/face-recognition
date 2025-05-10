@@ -106,7 +106,7 @@ def reconocer():
         img_bytes = base64.b64decode(image_data)
 
         # Convertir a arreglo numpy
-        img = Image.open(io.BytesIO(img_bytes))
+        img = Image.open(io.BytesIO(img_bytes)).convert("RGB")
         arr = np.array(img)
         logger.info(f"🔍 Imagen recibida: shape={arr.shape}, dtype={arr.dtype}")
 
@@ -136,7 +136,7 @@ def reconocer():
         logger.error(f"❌ Error en /reconocer: {e}")
         return jsonify(success=False, error=str(e)), 500
 
-def reconocer_persona(img_array, umbral=0.8):
+def reconocer_persona(img_array, umbral=0.9):
     from numpy.linalg import norm
 
     try:
@@ -156,7 +156,7 @@ def reconocer_persona(img_array, umbral=0.8):
 
         # Buscar identidad
         nombre_identificado = "Desconocido"
-        distancia_minima = float("inf")
+        distancia_minima = 9999
         for nombre, emb_list in base_datos.items():
             for emb_base in emb_list:
                 d = norm(embedding - emb_base)
