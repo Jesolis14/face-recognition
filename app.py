@@ -132,7 +132,7 @@ def reconocer():
         logger.error(f"❌ Error en /reconocer: {e}")
         return jsonify(success=False, error=str(e)), 500
 
-def reconocer_persona(img_array, umbral=0.85):
+def reconocer_persona(img_array, umbral=0.9):
     """Compara el embedding de la cara contra la base y devuelve el nombre más cercano o 'Desconocido'."""
     from numpy.linalg import norm
 
