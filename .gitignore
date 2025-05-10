@@ -4,7 +4,6 @@ venv/
 .vercel
 .env
 test.png
-generar_embeddings.py
 
 api/_vendored/clang/
 api/_vendored/cv2/
