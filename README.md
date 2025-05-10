@@ -1,5 +1,7 @@
 # Reconocimiento Facial en Tiempo Real con Flask, FaceNet y MTCNN
 
+[![Demo en vivo](https://img.shields.io/badge/Demo%20en%20vivo-Railway-green?style=for-the-badge&logo=railway)](https://face-recognition-production-fc31.up.railway.app/)
+
 Este proyecto implementa un sistema completo de reconocimiento facial en tiempo real usando **Flask** para el backend, **FaceNet** para la generación de embeddings y **MTCNN** para la detección de rostros. La interfaz web interactúa con la cámara del navegador y permite detectar si un rostro pertenece a una persona registrada, o mostrar "Acceso Denegado" si es desconocido.
 
 ---
